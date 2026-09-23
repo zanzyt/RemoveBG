@@ -102,5 +102,10 @@ error/                     source files that could not be processed
 tests/                     watcher and processing regression tests
 ```
 
-Runtime folders and the local `.venv` environment are created automatically when
-the application starts.
+## Built With
+
+This project is built on top of the following open-source libraries:
+
+* **[rembg](https://github.com/danielgatis/rembg)** — The core neural network tool used for high-quality background removal.
+* **[Pillow](https://python-pillow.org/)** — The Python Imaging Library used for reading, manipulating, and saving the image files.
+
