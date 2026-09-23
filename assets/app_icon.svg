@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.08"/>
+    </filter>
+    <line id="ray" x1="0" y1="-100" x2="0" y2="-155" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" stroke-dasharray="12 12"/>
+  </defs>
+  <rect x="40" y="40" width="320" height="320" rx="55" fill="#fcfcfd" stroke="#334155" stroke-width="6" filter="url(#shadow)"/>
+  <g transform="translate(200, 200)">
+    <use href="#ray" transform="rotate(0)"/>
+    <use href="#ray" transform="rotate(22.5)"/>
+    <use href="#ray" transform="rotate(45)"/>
+    <use href="#ray" transform="rotate(67.5)"/>
+    <use href="#ray" transform="rotate(90)"/>
+    <use href="#ray" transform="rotate(112.5)"/>
+    <use href="#ray" transform="rotate(135)"/>
+    <use href="#ray" transform="rotate(157.5)"/>
+    <use href="#ray" transform="rotate(180)"/>
+    <use href="#ray" transform="rotate(202.5)"/>
+    <use href="#ray" transform="rotate(225)"/>
+    <use href="#ray" transform="rotate(247.5)"/>
+    <use href="#ray" transform="rotate(270)"/>
+    <use href="#ray" transform="rotate(292.5)"/>
+    <use href="#ray" transform="rotate(315)"/>
+    <use href="#ray" transform="rotate(337.5)"/>
+  </g>
+  <g fill="#0B5295">
+    <circle cx="200" cy="115" r="22"/>
+    <rect x="175" y="148" width="50" height="95" rx="12"/>
+    <rect x="175" y="225" width="21" height="75" rx="10.5"/>
+    <rect x="204" y="225" width="21" height="75" rx="10.5"/>
+    <rect x="175" y="220" width="50" height="20"/>
+    <rect x="145" y="148" width="21" height="75" rx="10.5"/>
+    <rect x="234" y="148" width="21" height="75" rx="10.5"/>
+  </g>
+  <path d="M265 160C265 171 267 173 278 173C267 173 265 175 265 186C265 175 263 173 252 173C263 173 265 171 265 160Z" fill="#0B5295"/>
+  <path d="M255 132C255 142 257 144 268 144C257 144 255 146 255 156C255 146 253 144 242 144C253 144 255 142 255 132Z" fill="#0077D3"/>
+  <circle cx="235" cy="125" r="3" fill="#0077D3"/>
+  <circle cx="270" cy="153" r="2.5" fill="#0B5295"/>
+  <circle cx="245" cy="188" r="3" fill="#0B5295"/>
+</svg>

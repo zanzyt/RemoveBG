@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+tests/*
+
+# Runtime data
+input/*
+output/*
+done/*
+error/*
+!input/.gitkeep
+!output/.gitkeep
+!done/.gitkeep
+!error/.gitkeep
