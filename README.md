@@ -2,7 +2,7 @@
 
 A compact desktop application for removing image backgrounds locally with AI models.
 
-The dashboard keeps the watcher status, processing queue, project folders, model
+The dashboard keeps processing queue, project folders, model
 selection, and live activity log visible in one window.
 
 ## Getting started
