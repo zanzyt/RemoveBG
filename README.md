@@ -67,7 +67,6 @@ sudo pacman -S tk
 
 * Drag images into the window or click the file selection area.
 * Select the **Fast**, **Balanced**, or **Maximum** model preset.
-* Use **Start/Stop Watcher** to control automatic monitoring of the `input` folder.
 * On first use, the selected model is downloaded automatically. Its preparation
   status is shown in the application.
 * Processed images are saved as PNG files in `output`.
