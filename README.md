@@ -7,8 +7,10 @@ selection, and live activity log visible in one window.
 
 ## Getting started
 
-On Windows, run `start.bat`. The script installs the required dependencies and
-starts the application.
+### Windows
+
+Run `start.bat`. The script checks Python, creates a local `.venv`, installs the
+required dependencies, and starts the application.
 
 To start it manually:
 
@@ -17,14 +19,58 @@ python -m pip install -r requirements.txt
 python -m removebg_app
 ```
 
+### Linux
+
+Make the launcher executable:
+
+```bash
+chmod +x start.sh
+```
+
+Then run:
+
+```bash
+./start.sh
+```
+
+The script checks Python, creates a local `.venv`, installs the required
+dependencies, and starts the application.
+
+To start it manually:
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 -m removebg_app
+```
+
+Some Linux distributions may require Tkinter to be installed separately.
+
+Ubuntu / Debian:
+
+```bash
+sudo apt install python3-tk python3-venv
+```
+
+Fedora:
+
+```bash
+sudo dnf install python3-tkinter
+```
+
+Arch Linux:
+
+```bash
+sudo pacman -S tk
+```
+
 ## Usage
 
-- Drag images into the window or click the file selection area.
-- Select the **Fast**, **Balanced**, or **Maximum** model preset.
-- Use **Start/Stop Watcher** to control automatic monitoring of the `input` folder.
-- On first use, the selected model is downloaded automatically. Its preparation
+* Drag images into the window or click the file selection area.
+* Select the **Fast**, **Balanced**, or **Maximum** model preset.
+* Use **Start/Stop Watcher** to control automatic monitoring of the `input` folder.
+* On first use, the selected model is downloaded automatically. Its preparation
   status is shown in the application.
-- Processed images are saved as PNG files in `output`.
+* Processed images are saved as PNG files in `output`.
 
 Files placed in `input` are processed automatically while the watcher is active.
 After successful processing, source files are moved to `done`; failed files are
@@ -35,6 +81,7 @@ moved to `error`.
 ```text
 app.py                     application entry point
 start.bat                  Windows launcher
+start.sh                   Linux launcher
 requirements.txt           Python dependencies
 pyproject.toml             package metadata and version constraints
 assets/                    application icon assets
@@ -56,4 +103,5 @@ error/                     source files that could not be processed
 tests/                     watcher and processing regression tests
 ```
 
-Runtime folders are created automatically when the application starts.
+Runtime folders and the local `.venv` environment are created automatically when
+the application starts.
