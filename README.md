@@ -16,7 +16,7 @@ To start it manually:
 
 ```powershell
 python -m pip install -r requirements.txt
-python -m app.py
+python -m removebg_app
 ```
 
 ### Linux
@@ -40,7 +40,7 @@ To start it manually:
 
 ```bash
 python3 -m pip install -r requirements.txt
-python3 -m app.py
+python3 -m removebg_app
 ```
 
 Some Linux distributions may require Tkinter to be installed separately.
