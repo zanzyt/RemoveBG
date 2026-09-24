@@ -75,6 +75,19 @@ Files placed in `input` are processed automatically while the watcher is active.
 After successful processing, source files are moved to `done`; failed files are
 moved to `error`.
 
+
+## Supported Formats
+
+The application accepts the following input file formats:
+
+* **JPEG** (`.jpg`, `.jpeg`)
+* **PNG** (`.png`)
+* **WebP** (`.webp`)
+* **HEIC / HEIF** (`.heic`, `.heif`)
+
+> **Note:** All processed images are exported as **PNG** files with an alpha channel to preserve background transparency.
+
+
 ## Project structure
 
 ```text
