@@ -112,7 +112,6 @@ input/                     watched source folder
 output/                    processed PNG files
 done/                      successfully processed source files
 error/                     source files that could not be processed
-tests/                     watcher and processing regression tests
 ```
 
 ## Built With
