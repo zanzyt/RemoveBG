@@ -52,7 +52,6 @@ class RemoveBGApp:
         self.loading_model_key: str | None = None
         self.maximum_confirmed = False
         self.closed = False
-        self.watcher_enabled = True
         self.completed_total = 0
         self.error_total = 0
         self.total_processing_seconds = 0.0
@@ -68,7 +67,6 @@ class RemoveBGApp:
         self._setup_tree_style()
         self._build_ui()
         self._bind_shortcuts()
-        self._update_watcher_ui()
         self._update_metrics()
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -77,7 +75,7 @@ class RemoveBGApp:
         self.root.after(1000, self.scan_input_folder)
         self.processor.start()
 
-        self.log("Watcher started. Monitoring the input folder.")
+        self.log("Watcher active — monitoring input folder.")
         self.log(f"Output directory: {OUTPUT_DIR}")
 
     def _load_brand_assets(self) -> None:
@@ -134,7 +132,7 @@ class RemoveBGApp:
             borderwidth=0,
             relief="flat",
             padding=(6, 8),
-            font=("Bahnschrift SemiCondensed", 9, "bold"),
+            font=("Segoe UI", 9, "bold"),
         )
         style.map(
             "Pipeline.Treeview",
@@ -149,6 +147,8 @@ class RemoveBGApp:
             "Pipeline.Treeview",
             [("Pipeline.Treeview.treearea", {"sticky": "nswe"})],
         )
+
+    # ── Layout ────────────────────────────────────────────────────────
 
     def _build_ui(self) -> None:
         shell = ctk.CTkFrame(self.root, fg_color=COLORS.background, corner_radius=0)
@@ -183,12 +183,13 @@ class RemoveBGApp:
 
         self._build_pipeline_panel(top)
 
+        # Bottom: log takes full width (folder management removed —
+        # folders are accessible from the service panel on the left).
         bottom = ctk.CTkFrame(workspace, fg_color="transparent")
         bottom.grid(row=1, column=0, sticky="nsew", pady=(8, 0))
-        bottom.grid_columnconfigure((0, 1), weight=1, uniform="bottom")
+        bottom.grid_columnconfigure(0, weight=1)
         bottom.grid_rowconfigure(0, weight=1)
         self._build_log_panel(bottom)
-        self._build_folder_actions_panel(bottom)
 
     def _build_header(self, parent: ctk.CTkFrame) -> None:
         header = ctk.CTkFrame(parent, fg_color="transparent", height=34)
@@ -205,52 +206,30 @@ class RemoveBGApp:
             text_color=COLORS.text,
             font=heading_font(17),
         ).grid(row=0, column=1, sticky="w")
+
+        # Watcher status: always-on indicator in the header
+        status_frame = ctk.CTkFrame(header, fg_color="transparent")
+        status_frame.grid(row=0, column=2, sticky="e", padx=(10, 1))
+        self.watcher_dot = ctk.CTkLabel(
+            status_frame,
+            text="●",
+            text_color=COLORS.success,
+            width=12,
+            font=body_font(9, "bold"),
+        )
+        self.watcher_dot.pack(side="left", padx=(0, 4))
         ctk.CTkLabel(
-            header,
-            text="AUTOMATION CONSOLE  /  LOCAL PROCESSING",
+            status_frame,
+            text="WATCHING",
             text_color=COLORS.subdued,
             font=mono_font(8),
-        ).grid(row=0, column=2, sticky="e", padx=(10, 1))
+        ).pack(side="left")
 
     def _build_service_panel(self, parent: ctk.CTkFrame) -> None:
-        panel = Panel(parent, "Background Removal", icon=self.icons.get("image", COLORS.accent))
+        panel = Panel(parent, "Folders", icon=self.icons.get("folder", COLORS.accent))
         panel.grid(row=0, column=0, sticky="nsew")
         body = panel.body
         body.grid_columnconfigure(0, weight=1)
-
-        status = ctk.CTkFrame(body, fg_color="transparent")
-        status.grid(row=0, column=0, sticky="ew", padx=11, pady=(9, 6))
-        status.grid_columnconfigure(1, weight=1)
-        self.watcher_dot = ctk.CTkLabel(
-            status,
-            text="●",
-            text_color=COLORS.success,
-            width=14,
-            font=body_font(10, "bold"),
-        )
-        self.watcher_dot.grid(row=0, column=0, sticky="w")
-        self.watcher_status_label = ctk.CTkLabel(
-            status,
-            text="RUNNING · MONITORING INPUT",
-            text_color=COLORS.text,
-            font=heading_font(10),
-            anchor="w",
-        )
-        self.watcher_status_label.grid(row=0, column=1, sticky="w")
-
-        self.watcher_button = action_button(
-            body,
-            self.icons,
-            "Stop watcher",
-            "stop",
-            self.toggle_watcher,
-            primary=True,
-        )
-        self.watcher_button.grid(row=1, column=0, sticky="ew", padx=11, pady=(0, 9))
-
-        ctk.CTkFrame(body, fg_color=COLORS.border_soft, height=1, corner_radius=0).grid(
-            row=2, column=0, sticky="ew", padx=10
-        )
 
         folders = (
             ("Input", INPUT_DIR, COLORS.accent),
@@ -258,7 +237,7 @@ class RemoveBGApp:
             ("Done", DONE_DIR, COLORS.warning),
             ("Error", ERROR_DIR, COLORS.danger),
         )
-        for index, (title, path, color) in enumerate(folders, start=3):
+        for index, (title, path, color) in enumerate(folders):
             row = FolderRow(
                 body,
                 self.icons,
@@ -267,11 +246,11 @@ class RemoveBGApp:
                 lambda folder=path: self.open_path(folder),
                 color=color,
             )
-            row.grid(row=index, column=0, sticky="ew", padx=9)
-            if index < 6:
+            row.grid(row=index * 2, column=0, sticky="ew", padx=9)
+            if index < len(folders) - 1:
                 ctk.CTkFrame(
                     body, fg_color=COLORS.border_soft, height=1, corner_radius=0
-                ).grid(row=index, column=0, sticky="sew", padx=10)
+                ).grid(row=index * 2 + 1, column=0, sticky="ew", padx=10)
 
     def _build_current_panel(self, parent: ctk.CTkFrame) -> None:
         panel = Panel(parent, "Current Item", icon=self.icons.get("image", COLORS.muted))
@@ -503,7 +482,7 @@ class RemoveBGApp:
 
     def _build_log_panel(self, parent: ctk.CTkFrame) -> None:
         panel = Panel(parent, "Activity Log")
-        panel.grid(row=0, column=0, sticky="nsew", padx=(0, 4))
+        panel.grid(row=0, column=0, sticky="nsew")
         ctk.CTkLabel(
             panel.header,
             text="SESSION",
@@ -545,36 +524,7 @@ class RemoveBGApp:
         panel.body.grid_columnconfigure(0, weight=1)
         panel.body.grid_rowconfigure(0, weight=1)
 
-    def _build_folder_actions_panel(self, parent: ctk.CTkFrame) -> None:
-        panel = Panel(parent, "Folder Management", icon=self.icons.get("folder", COLORS.accent))
-        panel.grid(row=0, column=1, sticky="nsew", padx=(4, 0))
-        body = panel.body
-        body.grid_columnconfigure((0, 1), weight=1, uniform="folder-actions")
-        body.grid_rowconfigure((0, 1), weight=1)
-
-        buttons = (
-            ("Open Input", INPUT_DIR, "folder"),
-            ("Open Output", OUTPUT_DIR, "folder"),
-            ("Open Done", DONE_DIR, "check"),
-            ("Open Errors", ERROR_DIR, "warning"),
-        )
-        for index, (label, path, icon_name) in enumerate(buttons):
-            row, column = divmod(index, 2)
-            button = action_button(
-                body,
-                self.icons,
-                label,
-                icon_name,
-                lambda folder=path: self.open_path(folder),
-                height=36,
-            )
-            button.grid(
-                row=row,
-                column=column,
-                sticky="nsew",
-                padx=(9 if column == 0 else 4, 4 if column == 0 else 9),
-                pady=(9 if row == 0 else 4, 4 if row == 0 else 9),
-            )
+    # ── Shortcuts ─────────────────────────────────────────────────────
 
     def _bind_shortcuts(self) -> None:
         self.root.bind("<Control-o>", lambda _event: self.select_files())
@@ -589,6 +539,8 @@ class RemoveBGApp:
 
     def _drop_hover_off(self, _event: tk.Event) -> None:
         self.drop_target.configure(border_color=COLORS.border_soft, fg_color=COLORS.field)
+
+    # ── Model & delay controls ────────────────────────────────────────
 
     def on_delay_changed(self, value: float) -> None:
         rounded = round(float(value) * 2) / 2
@@ -620,32 +572,7 @@ class RemoveBGApp:
             self.maximum_confirmed = True
         return accepted
 
-    def toggle_watcher(self) -> None:
-        self.watcher_enabled = not self.watcher_enabled
-        if self.watcher_enabled:
-            self.input_watcher.reset()
-        self._update_watcher_ui()
-        self.log("Input monitoring resumed." if self.watcher_enabled else "Input monitoring paused.")
-
-    def _update_watcher_ui(self) -> None:
-        if self.watcher_enabled:
-            self.watcher_dot.configure(text_color=COLORS.success)
-            self.watcher_status_label.configure(text="RUNNING · MONITORING INPUT")
-            self.watcher_button.configure(
-                text="STOP WATCHER",
-                image=self.icons.get("stop", "#FFFFFF"),
-                fg_color=COLORS.accent,
-                hover_color=COLORS.accent_hover,
-            )
-        else:
-            self.watcher_dot.configure(text_color=COLORS.warning)
-            self.watcher_status_label.configure(text="PAUSED · MONITORING DISABLED")
-            self.watcher_button.configure(
-                text="START WATCHER",
-                image=self.icons.get("play", "#FFFFFF"),
-                fg_color=COLORS.accent,
-                hover_color=COLORS.accent_hover,
-            )
+    # ── Drag-and-drop / file selection ────────────────────────────────
 
     def handle_drop(self, event: tk.Event) -> None:
         self.add_paths(self.root.tk.splitlist(event.data))
@@ -728,6 +655,8 @@ class RemoveBGApp:
         )
         self.log(f"File queued: {path.name} [{spec.title}]")
 
+    # ── Event bus ─────────────────────────────────────────────────────
+
     def emit(self, event_type: str, *payload: object) -> None:
         self.ui_queue.put((event_type, *payload))
 
@@ -793,6 +722,8 @@ class RemoveBGApp:
 
         self.update_summary()
         self._update_metrics()
+
+    # ── Internal UI helpers ───────────────────────────────────────────
 
     def _append_log(self, timestamp: str, message: str) -> None:
         self.log_area.configure(state="normal")
@@ -921,14 +852,17 @@ class RemoveBGApp:
             size /= 1024
         return f"{size:.1f} GB"
 
+    # ── Input watcher (always-on) ─────────────────────────────────────
+
     def scan_input_folder(self) -> None:
         if self.closed:
             return
-        if self.watcher_enabled:
-            for path in self.input_watcher.scan(self.queued_sources):
-                self.enqueue_file(path, model_key=self.current_model_key, move_after=True)
-            self.update_summary()
+        for path in self.input_watcher.scan(self.queued_sources):
+            self.enqueue_file(path, model_key=self.current_model_key, move_after=True)
+        self.update_summary()
         self.root.after(1000, self.scan_input_folder)
+
+    # ── Pipeline actions ──────────────────────────────────────────────
 
     def clear_completed(self) -> None:
         for item_id in list(self.tree.get_children()):
